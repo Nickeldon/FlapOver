@@ -20,14 +20,17 @@
                 0
             </h1>
 
-            <div id="GMO-scr" style="display:none;position: absolute; background-color:transparent;top:0; margin:auto; width:590px; height: 550px; transition:all 1s ease-in-out; filter:blur(20px) opacity(0%);">
+            <div id="GMO-scr" style="display:none;position: absolute; background-color:transparent;top:0; margin:auto; width:590px; height: 700px; transition:all 1s ease-in-out;filter:blur(20px) opacity(0%);">
                
                 <h1 class="GMO-txt-double" title="Game Over">
                         Game Over
                 </h1>
 
                 <div class="content-shad">
-                    <div class="GMO-content">
+                    <div class="GMO-content" style="position: absolute;
+                    height: 220px;
+                    width: 450px;
+                    background-color: rgb(221, 216, 148);">
                         <div class="part1" style="width: 100px; position:absolute; left:40px; top:27px">
                             <h1 class="prt1">
                                 MEDAL 
@@ -61,6 +64,16 @@
                             </div>
                         </div>
                     </div>
+
+                </div>
+                <div class="GMO-btns" style="width:370px; height: 130px; position:absolute; bottom:15%; right:18.5%; z-index:99;">
+                        <i>
+                            <img src="./Addons/Restart.png" style="height: 125px; position:absolute; left:0; top:-8px" onclick="redirect(1)">
+                        </i>
+
+                        <i>
+                            <img src="./Addons/Stop.png" style="height: 110px; position:absolute; right:0;" onclick="redirect(2)">
+                        </i>
                 </div>
                 
             </div>
@@ -70,6 +83,11 @@
 </body>
 
 <style>
+
+    .GMO-btns i img:hover{
+        cursor: pointer;
+        transform: scale(0.9);
+    }
 
     .prt1{
         letter-spacing: -2px;
@@ -99,7 +117,7 @@
     .GMO-txt-double {
     letter-spacing: -1px;
     font-weight: 400;
-    top:20%;
+    top:14%;
     left: 19%;
     position: absolute;
     z-index: 0;
@@ -129,7 +147,7 @@
 
     .content-shad{
         left: 12%;
-        bottom: 14%;
+        bottom: 35%;
         border-radius: 20px;
         position: absolute;
         height: 220px;
@@ -137,12 +155,7 @@
         box-shadow: 5px 5px 10px 2px rgba(0,0,0,.8);
     }
 
-    .GMO-content {
-        
-        position: absolute;
-        height: 220px;
-        width: 450px;
-        background-color: rgb(221, 216, 148);
+    .GMO-content {       
         clip-path: polygon(
           0px calc(100% - 20px),
           4px calc(100% - 20px),
@@ -197,5 +210,58 @@
 
 </style>
 
+<script src="./Addons/Packages/JQuery 3.1.1/jquery-3.1.1.min.js"></script>
+<script src="./Addons/Packages/Soundhandler/howler.min.js"></script>
+<script>
+    var wing = new Howl({
+        src: ['./Addons/Sounds/sfx_wing.wav'],
+        volume: 0.2,
+        autoplay: false,
+        stereo: true,
+    });
+
+    var point = new Howl({
+        src: ['./Addons/Sounds/sfx_point.wav'],
+        volume: 0.2,
+        autoplay: false,
+        stereo: true,
+    });
+
+    var hit = new Howl({
+        src: ['./Addons/Sounds/sfx_hit.wav'],
+        volume: 0.2,
+        autoplay: false,
+        stereo: true,
+    });
+
+    function redirect(select){
+
+        switch(select){
+            case 1: window.location.reload(); break;
+            case 2: {
+
+            }break;
+        }
+    }
+
+    var reqres = {
+        x: 592
+    }
+
+    var givenres = {
+        x: window.innerWidth
+    }
+
+    var tempres = givenres.x
+
+    setInterval(() => {
+        var givenres = {
+            x: window.innerWidth,
+        }
+        if(Math.trunc(tempres / givenres) !== 1){
+        document.querySelector('body').style.transform = `scale(${givenres.x/reqres.x})`}
+    }, 10)
+</script>
 <script src="main.js"></script>
+
 </html>

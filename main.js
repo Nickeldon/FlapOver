@@ -1,3 +1,4 @@
+
 const canvas = document.querySelector('canvas')
 var floorarray = []
 const ctx = canvas.getContext('2d')
@@ -50,6 +51,29 @@ function drawImage(img,x,y,width,height,deg){
     ctx.restore();
 }
 
+function handleGMO(currentpnts){
+    hit.play()
+    var points = 0
+    document.getElementById('GMO-scr').style.display = 'block'
+    setTimeout(() => {
+        document.getElementById('GMO-scr').style.filter = 'blur(0px) opacity(100%)'
+        setTimeout(() => {
+            setInterval(() => {
+                if(points < currentpnts){
+                    points++
+                    document.getElementById('score').innerHTML = points
+                }
+            }, 80)
+        }, 900)
+    }, 100)
+    isgameover = true
+    if(best < currentpnts){
+        best = currentpnts
+        localStorage.setItem('best-score', best)
+    }
+    document.getElementById('BEST').innerHTML = best
+}
+
 class jumper{
     constructor({position, velocity, width, height, angle, imgsrc}){
         this.position = {
@@ -92,11 +116,7 @@ class jumper{
         this.angle += 3}
 
         if(Math.floor(this.position.y) > (canvas.height - (this.width) - 60)){
-            isgameover = true
-            document.getElementById('GMO-scr').style.display = 'block'
-            setTimeout(() => {
-                document.getElementById('GMO-scr').style.filter = 'blur(0px) opacity(100%)'
-            }, 100)
+            handleGMO(pointcount)
         }
 
     }
@@ -136,6 +156,7 @@ window.addEventListener('keydown', (event) => {
 
     switch(key){
         case " ": {
+            wing.play()
             keypressed.sp.press = true
             flappy.velocity.y = 15
             flappy.angle = -40
@@ -207,7 +228,7 @@ class TopPipe{
     draw(){
         //ctx.fillStyle = 'green'
         //ctx.fillRect(this.position.x, this.position.y, this.width, this.height)
-        ctx.drawImage(this.image, this.position.x, this.position.y, this.width, this.height)
+        ctx.drawImage(this.image, this.position.x, this.position.y, this.width + 20, this.height)
     }
 
     update(){
@@ -289,36 +310,15 @@ bottomPipeimg.src = "./Addons/bottompipe.png"
 
 var temppipe
 var pointcount = 0
+
 function Handlecollision(pipetop, flappy, pipebottom){
     if((pipetop.position.x) <= (canvas.width/2.3) + flappy.width - 5 && pipetop.position.x > flappy.position.x){
 
         if(flappy.position.y + 5 <= (pipetop.position.y + pipetop.height)){
-                document.getElementById('GMO-scr').style.display = 'block'
-                setTimeout(() => {
-                    document.getElementById('GMO-scr').style.filter = 'blur(0px) opacity(100%)'
-                }, 100)
-                isgameover = true
-            console.log('COLLISIONTOP', pipetop.position.y - pipetop.height, -flappy.position.y)
-            if(best < pointcount){
-                best = pointcount
-                localStorage.setItem('best-score', best)
-            }
-            document.getElementById('BEST').innerHTML = best
-            document.getElementById('score').innerHTML = pointcount
+                handleGMO(pointcount)
         } 
         else if(flappy.position.y + flappy.height - 1 >= (pipebottom.position.y)){ 
-            document.getElementById('GMO-scr').style.display = 'block'
-            setTimeout(() => {
-                document.getElementById('GMO-scr').style.filter = 'blur(0px) opacity(100%)'
-            }, 100)
-            isgameover = true
-            console.log('COLLISIONBOTTOM', pipebottom.position.y - pipebottom.height, -flappy.position.y)
-            if(best < pointcount){
-                best = pointcount
-                localStorage.setItem('best-score', best)
-            }
-            document.getElementById('BEST').innerHTML = best
-            document.getElementById('score').innerHTML = pointcount
+            handleGMO(pointcount)
         }
         else{
 
@@ -345,6 +345,7 @@ function Handlecollision(pipetop, flappy, pipebottom){
                 case 160: {tempo[0] = 400; tempo[1] = 21;} break; 
                 case 170: {tempo[0] = 400; tempo[1] = 22;} break;
             }
+            point.play()
             document.getElementById('counter').innerHTML = pointcount}
         }
     }

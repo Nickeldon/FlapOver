@@ -1,12 +1,18 @@
 {
   "name": "flappy_bird",
-  "version": "1.0.0",
+  "version": "2.5.0",
   "description": "",
   "repository": "https://github.com/Nickeldon/Over_Flappy.git",
-  "main": "main.js",
+  "main": "electron.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package-win": "electron-packager . --overwrite --platform=win32 --icon=Addons/Flappy_Bird_icon.ico --arch=ia32 --prune=true --out=TheOverFlapper-V2.5.0",
+    "start": "live-server"
   },
-  "author": "Nikkerudon",
-  "license": "ISC"
+  "author": "Nickeldon",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^29.0.1",
+    "electron-reload": "^2.0.0-alpha.1"
+  }
 }
