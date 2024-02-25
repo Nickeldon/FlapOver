@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @font-face { font-family: FlappyBirdy; src: url('./Addons/FlappyBirdy.ttf');}
+        @font-face { font-family: FlappyBirdFont; src: url('./Addons/FlappyBirdFont.ttf');}
+        @font-face { font-family: PixelifySans; src: url('./Addons/PixelifySans.ttf');}
+    </style>
+</head>
+<body style="width: 590px; height:700px">
+
+    <div class="main">
+        <canvas height="700" width="590"></canvas>
+
+        <div id="HUD">
+            <h1 id="counter" style="position: absolute; top: 15%; left: 50%; color: white; font-size: 60px">
+                0
+            </h1>
+
+            <div id="GMO-scr" style="display:none;position: absolute; background-color:transparent;top:0; margin:auto; width:590px; height: 550px; transition:all 1s ease-in-out; filter:blur(20px) opacity(0%);">
+               
+                <h1 class="GMO-txt-double" title="Game Over">
+                        Game Over
+                </h1>
+
+                <div class="content-shad">
+                    <div class="GMO-content">
+                        <div class="part1" style="width: 100px; position:absolute; left:40px; top:27px">
+                            <h1 class="prt1">
+                                MEDAL 
+                            </h1>
+
+                            <div style="width: 80px; height:80px; border-radius:50%; background-color:rgb(200, 196, 143); margin-top:15px">
+
+                            </div>
+                        </div>
+
+                        <div class="part2" style="width: 100px; position:absolute; right:40px; top:30px">
+                            <div>
+                                <h1 class="prt2">
+                                    SCORE <br> 
+                                    <span id="score">
+                                        0
+                                    </span>
+                                </h1>
+
+                            </div>
+                            
+                            <h1 class="prt2">
+                                BEST <br> 
+                                <span id="BEST">
+                                    0
+                                </span>
+                            </h1>
+
+                            <div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+   
+</body>
+
+<style>
+
+    .prt1{
+        letter-spacing: -2px;
+        -webkit-text-stroke: 1px #ffa57f;
+        text-align: center; 
+        font-weight:300; 
+        color:#db5f2a;
+    }
+
+    .prt2{
+        letter-spacing: -2px;
+        -webkit-text-stroke: 1px #ffa57f;
+        text-align: right; 
+        font-weight:300; 
+        color:#db5f2a;
+
+        span{
+            position: relative;
+            font-weight: 700;
+            font-size: 40px;
+            -webkit-text-stroke: 2px black;
+            color:white
+        }
+    }
+
+    .GMO-txt-single,
+    .GMO-txt-double {
+    letter-spacing: -1px;
+    font-weight: 400;
+    top:20%;
+    left: 19%;
+    position: absolute;
+    z-index: 0;
+    color:#fca143;
+    font-size: 110px;
+    font-family: FlappyBirdFont;
+    }
+    /* add a single stroke */
+    .GMO-txt-single:before,
+    .GMO-txt-double:before {
+    content: attr(title);
+    position: absolute;
+    -webkit-text-stroke: 5px white; 
+    
+    left: 0;
+    z-index: -1;
+    }
+    /* add a double stroke */
+    .GMO-txt-double:after {
+    text-shadow: 4px 10px 10px #000000;
+    content: attr(title);
+    position: absolute;
+    -webkit-text-stroke: 10px black;
+    left: 0;
+    z-index: -2;
+    }
+
+    .content-shad{
+        left: 12%;
+        bottom: 14%;
+        border-radius: 20px;
+        position: absolute;
+        height: 220px;
+        width: 450px;
+        box-shadow: 5px 5px 10px 2px rgba(0,0,0,.8);
+    }
+
+    .GMO-content {
+        
+        position: absolute;
+        height: 220px;
+        width: 450px;
+        background-color: rgb(221, 216, 148);
+        clip-path: polygon(
+          0px calc(100% - 20px),
+          4px calc(100% - 20px),
+          4px calc(100% - 12px),
+          8px calc(100% - 12px),
+          8px calc(100% - 8px),
+          12px calc(100% - 8px),
+          12px calc(100% - 4px),
+          20px calc(100% - 4px),
+          20px 100%,
+          calc(100% - 20px) 100%,
+          calc(100% - 20px) calc(100% - 4px),
+          calc(100% - 12px) calc(100% - 4px),
+          calc(100% - 12px) calc(100% - 8px),
+          calc(100% - 8px) calc(100% - 8px),
+          calc(100% - 8px) calc(100% - 12px),
+          calc(100% - 4px) calc(100% - 12px),
+          calc(100% - 4px) calc(100% - 20px),
+          100% calc(100% - 20px),
+          100% 20px,
+          calc(100% - 4px) 20px,
+          calc(100% - 4px) 12px,
+          calc(100% - 8px) 12px,
+          calc(100% - 8px) 8px,
+          calc(100% - 12px) 8px,
+          calc(100% - 12px) 4px,
+          calc(100% - 20px) 4px,
+          calc(100% - 20px) 0px,
+          20px 0px,
+          20px 4px,
+          12px 4px,
+          12px 8px,
+          8px 8px,
+          8px 12px,
+          4px 12px,
+          4px 20px,
+          0px 20px
+        );
+      }
+
+    .counter{
+        -webkit-text-stroke: 2px black;
+    }
+
+    *{
+        font-family: PixelifySans, sans-serif;
+        margin:auto;
+        padding: 0;
+        overflow: hidden;
+        user-select: none;
+    }
+
+</style>
+
+<script src="main.js"></script>
+</html>

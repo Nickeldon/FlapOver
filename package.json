@@ -1,0 +1,12 @@
+{
+  "name": "flappy_bird",
+  "version": "1.0.0",
+  "description": "",
+  "repository": "https://github.com/Nickeldon/Over_Flappy.git",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nikkerudon",
+  "license": "ISC"
+}
