@@ -20,7 +20,7 @@ function createWindow(){
       fullscreenable: false,
       frame: false,
       titleBarStyle: 'hidden',
-      transparent: true,
+      transparent: false,
       minWidth:400,
       maxWidth:1000,
     });

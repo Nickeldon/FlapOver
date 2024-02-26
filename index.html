@@ -8,19 +8,24 @@
         @font-face { font-family: FlappyBirdy; src: url('./Addons/FlappyBirdy.ttf');}
         @font-face { font-family: FlappyBirdFont; src: url('./Addons/FlappyBirdFont.ttf');}
         @font-face { font-family: PixelifySans; src: url('./Addons/PixelifySans.ttf');}
+        @font-face { font-family: Blocky; src: url('./Addons/Blocky.TTF');}
     </style>
 </head>
 <body style="width: 590px; height:700px">
 
-    <div class="main">
+    <div class="main" id="main" style="transition: all .4s ease-out; opacity:0%">
         <canvas height="700" width="590"></canvas>
 
         <div id="HUD">
-            <h1 id="counter" style="position: absolute; top: 15%; left: 50%; color: white; font-size: 60px">
+            <i style="position: absolute; top:0; height:70px; width:80px; z-index:99">
+                <img class="opt-btn" src="./Addons/Options.png" style="height: 70px; position:absolute; left:4%; top:10%" onclick="redirect(2)">
+            </i>
+
+            <h1 id="counter" class="counter" style="display: block; position: absolute; top: 15%; left: 49%; color: white; font-size: 40px; transition:all .5s ease-out; opacity:0%">
                 0
             </h1>
 
-            <div id="GMO-scr" style="display:none;position: absolute; background-color:transparent;top:0; margin:auto; width:590px; height: 700px; transition:all 1s ease-in-out;filter:blur(20px) opacity(0%);">
+            <div id="GMO-scr" style="display:block;position: absolute; background-color:transparent;top:0; margin:auto; width:590px; height: 700px; transition:all 1s ease-in-out;filter:blur(20px) opacity(0%);">
                
                 <h1 class="GMO-txt-double" title="Game Over">
                         Game Over
@@ -68,14 +73,32 @@
                 </div>
                 <div class="GMO-btns" style="width:370px; height: 130px; position:absolute; bottom:15%; right:18.5%; z-index:99;">
                         <i>
-                            <img src="./Addons/Restart.png" style="height: 125px; position:absolute; left:0; top:-8px" onclick="redirect(1)">
+                            <img src="./Addons/Restart.png" style="height: 125px; position:absolute; left:35%; top:-8px" onclick="redirect(1)">
                         </i>
 
-                        <i>
-                            <img src="./Addons/Stop.png" style="height: 110px; position:absolute; right:0;" onclick="redirect(2)">
-                        </i>
                 </div>
                 
+            </div>
+            <div id="start-scr" style="position:absolute; top:100px; margin:auto; height:600px; width:590px; transition:all .3s ease-out; opacity:100%;" onclick="execute()">
+                <i>
+                    <img src="./Addons/mainscreen.png" style="height:230px; position:absolute; top:0; z-index:99; left:24.5%; top:30%">
+                </i>
+            </div>
+
+            <div id="options" style="height: 700px; width:300px; background-color: #fca143; position:absolute; top:0; left:-300px; z-index:99; border-radius:20px; transition:all 1s ease-out;">
+
+                <h1 style="text-align: center; margin-top: 40px; color:white; -webkit-text-stroke: 1.5px black">
+                    OPTIONS
+                </h1>
+
+                <h3 id="opt" class="opt" style="text-align: center; margin-top:50px" onclick="Options(1)">
+                    Hz preset: <span style="color: rgb(149, 17, 17);" id="HZ-preset">60Hz</span>
+                </h3>
+
+                <h3 class="opt" style="text-align: center; margin-top:100%;  -webkit-text-stroke: .5px black" onclick="document.getElementById('options').style.left = '-300px'">
+                    RETURN
+                </h3>
+
             </div>
         </div>
     </div>
@@ -83,6 +106,16 @@
 </body>
 
 <style>
+
+    .opt-btn:hover{
+        cursor: pointer;
+        transform: scale(0.9);
+    }
+
+    .opt:hover{
+        cursor: pointer;
+        letter-spacing: 1px;
+    }
 
     .GMO-btns i img:hover{
         cursor: pointer;
@@ -197,6 +230,7 @@
       }
 
     .counter{
+        font-family: Blocky, sans-serif;
         -webkit-text-stroke: 2px black;
     }
 
@@ -208,27 +242,106 @@
         user-select: none;
     }
 
+
 </style>
 
 <script src="./Addons/Packages/JQuery 3.1.1/jquery-3.1.1.min.js"></script>
 <script src="./Addons/Packages/Soundhandler/howler.min.js"></script>
 <script>
+    
+    document.getElementById('HZ-preset').innerHTML = localStorage.getItem('Hz-preset')
+    var gravity_y
+    var jump_y
+    var change_ang
+    var tempo
+    var refresh
+
+    /*
+    [1600, 7], [1400, 8],
+                [1100, 9], [900, 10],
+                [700, 11], [500, 12],
+                [400, 13], [1300, 14],
+                [1200, 15, 1.2], [1100, 16],
+                [1000, 17], [900, 18],
+                [800, 19, 1.7], [800, 20],
+                [800, 21], [800, 22],
+                [800, 23]*/
+
+    const presets = {
+        '60Hz': {
+            gravity_y: 1.8,
+            jump_y: 19,
+            change_ang: 5,
+            tempo:[2200, 6],
+            refresh: 20,
+            phases:[
+            [1600, 7], [1500, 8],
+            [1400, 9], [1300, 10],
+            [1200, 11], [1100, 12],
+            [1000, 13], [900, 14],
+            [800, 15, 1.5], [700, 16],
+            [600, 17], [500, 18],
+            [400, 19, 2], [400, 20],
+            [400, 21], [400, 22],
+            [400, 23]
+            ],
+            minimum_vel: 7
+        },
+        '144Hz': {
+            gravity_y: 1,
+            jump_y: 15,
+            change_ang: 3,
+            tempo:[2000, 5],
+            refresh: 20,
+            phases:[
+                [1600, 6], [1500, 7],
+                [1400, 8], [1300, 9],
+                [1200, 10], [1100, 11],
+                [1000, 12], [900, 13],
+                [800, 14, 1.5], [700, 15],
+                [600, 16], [500, 17],
+                [400, 18, 2], [400, 19],
+                [400, 20], [400, 21],
+                [400, 22]
+            ],
+            minimum_vel: 5
+        }
+    }
+    function Options(choice){
+        switch(choice){
+            case 1: {
+                if(document.getElementById('HZ-preset').innerHTML === '60Hz'){
+                    document.getElementById('HZ-preset').innerHTML = '144Hz'
+                } else{
+                    document.getElementById('HZ-preset').innerHTML = '60Hz'
+                }
+                localStorage.setItem('Hz-preset', document.getElementById('HZ-preset').innerHTML)
+                gravity_y = presets[document.getElementById('HZ-preset').innerHTML].gravity_y
+                jump_y = presets[document.getElementById('HZ-preset').innerHTML].jump_y
+                change_ang = presets[document.getElementById('HZ-preset').innerHTML].change_ang
+                tempo = presets[document.getElementById('HZ-preset').innerHTML].tempo
+                refresh = presets[document.getElementById('HZ-preset').innerHTML].refresh
+            }break;
+        }
+    }
+
+    document.getElementById('main').style.opacity = '100%'
     var wing = new Howl({
-        src: ['./Addons/Sounds/sfx_wing.wav'],
+        src: ['./Addons/Sounds/sfx_wing.aac'],
         volume: 0.2,
         autoplay: false,
         stereo: true,
     });
 
     var point = new Howl({
-        src: ['./Addons/Sounds/sfx_point.wav'],
+        src: ['./Addons/Sounds/sfx_point.aac'],
         volume: 0.2,
         autoplay: false,
         stereo: true,
     });
 
     var hit = new Howl({
-        src: ['./Addons/Sounds/sfx_hit.wav'],
+        src: ['./Addons/Sounds/sfx_hit.aac'],
         volume: 0.2,
         autoplay: false,
         stereo: true,
@@ -237,9 +350,19 @@
     function redirect(select){
 
         switch(select){
-            case 1: window.location.reload(); break;
+            case 1: {
+                document.getElementById('main').style.opacity = '0%'
+                setTimeout(() => {
+                    window.location.reload();
+                }, 300)
+                
+             }break;
             case 2: {
-
+                if(document.getElementById('options').style.left === '-300px'){
+                document.getElementById('options').style.left = '-10px'}
+                else{
+                    document.getElementById('options').style.left = '-300px'
+                }
             }break;
         }
     }
@@ -259,7 +382,8 @@
             x: window.innerWidth,
         }
         if(Math.trunc(tempres / givenres) !== 1){
-        document.querySelector('body').style.transform = `scale(${givenres.x/reqres.x})`}
+        document.querySelector('body').style.transform = `scale(${givenres.x/reqres.x})`
+    }
     }, 10)
 </script>
 <script src="main.js"></script>

@@ -2,9 +2,22 @@
 const canvas = document.querySelector('canvas')
 var floorarray = []
 const ctx = canvas.getContext('2d')
-var tempo = [2000, 5]
 var pipeArray = []
+var isstarted = false
 var isgameover = false
+
+    minvel = presets[document.getElementById('HZ-preset').innerHTML].minimum_vel
+    gravity_y = presets[document.getElementById('HZ-preset').innerHTML].gravity_y
+    jump_y = presets[document.getElementById('HZ-preset').innerHTML].jump_y
+    change_ang = presets[document.getElementById('HZ-preset').innerHTML].change_ang
+    tempo = presets[document.getElementById('HZ-preset').innerHTML].tempo
+    refresh = presets[document.getElementById('HZ-preset').innerHTML].refresh
+
+
+if(!localStorage.getItem('Hz-preset')){
+    console.log('true')
+    localStorage.setItem('Hz-preset', document.getElementById('HZ-preset').innerHTML)
+}
 var pipe = {
     position: {
         x: canvas.width,
@@ -29,8 +42,6 @@ try{
     localStorage.setItem('best-score', best)
 }
 
-var gravity_y = 1
-
 function drawImage(img,x,y,width,height,deg){
     // Store the current context state (i.e. rotation, translation etc..)
     ctx.save()
@@ -53,6 +64,7 @@ function drawImage(img,x,y,width,height,deg){
 
 function handleGMO(currentpnts){
     hit.play()
+    document.getElementById('counter').style.opacity = '0%'
     var points = 0
     document.getElementById('GMO-scr').style.display = 'block'
     setTimeout(() => {
@@ -104,6 +116,8 @@ class jumper{
 
     update(){
         this.draw()
+
+        if(isstarted){
         if(Math.floor(this.position.y) < (canvas.height - (this.width) - 60)){
             this.velocity.y -= gravity_y
         }
@@ -112,20 +126,20 @@ class jumper{
         }
 
         this.position.y -= this.velocity.y
-        if(this.angle < 90 && Math.floor(this.position.y) < (canvas.height - (this.width) - 60) && this.velocity.y < 5){
-        this.angle += 3}
+        if(this.angle < 90 && Math.floor(this.position.y) < (canvas.height - (this.width) - 60) && this.velocity.y < minvel){
+        this.angle += change_ang}
 
         if(Math.floor(this.position.y) > (canvas.height - (this.width) - 60)){
             handleGMO(pointcount)
-        }
+        }}
 
     }
 }
 
 const flappy = new jumper({
     position:{
-        x: canvas.width/2.3,
-        y: 0
+        x: canvas.width/3,
+        y: canvas.height/2.4    
     },
     velocity:{
         x: 0,
@@ -156,13 +170,24 @@ window.addEventListener('keydown', (event) => {
 
     switch(key){
         case " ": {
+            if(isstarted){
             wing.play()
             keypressed.sp.press = true
-            flappy.velocity.y = 15
-            flappy.angle = -40
-            console.log('pressed')
+            flappy.velocity.y = jump_y
+            flappy.angle = -20
+            console.log('pressed')}
+            
+            else{
+                execute()
+            }
         }break;
     }}
+    switch(key){
+        case 'Escape':{
+            if(document.getElementById('options').style.left === '-10px'){
+                document.getElementById('options').style.left = '-300px'}
+        }break;
+    }
 
     
 })
@@ -203,13 +228,17 @@ class floor{
         this.draw()
 
         this.position.x -= tempo[1]
-        if(this.position.x + this.width < (-this.width)){
-            for(let i = 0; i < floorarray.length; i++){
-                if(floorarray[i] === this){
-                    floorarray.splice(i, 1)
-                }
-            }
-        }
+
+            floorarray.forEach((elem) => {
+                if(elem.position.x + elem.width < -(canvas.width)){
+                    if(floorarray.indexOf(elem) !== -1){
+                    floorarray.splice(floorarray.indexOf(elem), 1)}
+
+                } else if(elem.position.x + elem.width > 4 * canvas.width){
+                    if(floorarray.indexOf(elem) !== -1){
+                        floorarray.splice(floorarray.indexOf(elem), 1)}
+                } 
+            })
     }
 }
 
@@ -247,21 +276,41 @@ class TopPipe{
 }
 
 function FloorCreate(isstarted){
+
+    var high_x_pos = 0
+    floorarray.forEach((elem) => {
+        if(elem.position.x + elem.width > high_x_pos){
+            high_x_pos = elem.position.x
+        }
+    })
+
+
     if(!isstarted){
     var fl = new floor({
         img:floorimg,
         position:{
-            x:canvas.width,
+            x:high_x_pos,
             y:canvas.height - 70,
         },
         height: canvas.height / 10,
         width: canvas.width
-    })}
+    })
+
+    var fl_after = new floor({
+        img:floorimg,
+        position:{
+            x:high_x_pos + canvas.width,
+            y:canvas.height - 70,
+        },
+        height: canvas.height / 10,
+        width: canvas.width
+    })
+}
     else{
         var fl = new floor({
             img:floorimg,
             position:{
-                x:canvas.width,
+                x:0,
                 y:canvas.height - 70,
             },
             height: canvas.height / 10,
@@ -270,6 +319,7 @@ function FloorCreate(isstarted){
     }
 
     floorarray.push(fl)
+    floorarray.push(fl_after)
 
 }
 
@@ -310,9 +360,10 @@ bottomPipeimg.src = "./Addons/bottompipe.png"
 
 var temppipe
 var pointcount = 0
+var speed
 
 function Handlecollision(pipetop, flappy, pipebottom){
-    if((pipetop.position.x) <= (canvas.width/2.3) + flappy.width - 5 && pipetop.position.x > flappy.position.x){
+    if((pipetop.position.x) <= (canvas.width/3) + flappy.width - 5 && pipetop.position.x > flappy.position.x){
 
         if(flappy.position.y + 5 <= (pipetop.position.y + pipetop.height)){
                 handleGMO(pointcount)
@@ -325,25 +376,24 @@ function Handlecollision(pipetop, flappy, pipebottom){
             if(temppipe !== pipetop){
             temppipe = pipetop
             pointcount += 1
-
             switch(pointcount){
-                case 10: {tempo[0] = 1600; tempo[1] = 6} break;
-                case 20: {tempo[0] = 1500; tempo[1] =  7;} break;
-                case 30: {tempo[0] = 1400; tempo[1] =  8;} break;
-                case 40: {tempo[0] = 1300; tempo[1] =  9;} break;
-                case 50: {tempo[0] = 1200; tempo[1] = 10;} break; 
-                case 60: {tempo[0] = 1100; tempo[1] = 11;} break; 
-                case 70: {tempo[0] = 1000; tempo[1] = 12;} break; 
-                case 80: {tempo[0] = 900; tempo[1] = 13;} break; 
-                case 90: {tempo[0] = 800; tempo[1] = 14; gravity_y = 1.5} break; 
-                case 100: {tempo[0] = 700; tempo[1] = 15;} break; 
-                case 110: {tempo[0] = 600; tempo[1] = 16;} break; 
-                case 120: {tempo[0] = 500; tempo[1] = 17;} break; 
-                case 130: {tempo[0] = 400; tempo[1] = 18; gravity_y = 2} break; 
-                case 140: {tempo[0] = 400; tempo[1] = 19;} break; 
-                case 150: {tempo[0] = 400; tempo[1] = 20;} break; 
-                case 160: {tempo[0] = 400; tempo[1] = 21;} break; 
-                case 170: {tempo[0] = 400; tempo[1] = 22;} break;
+                case 10: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[0]} break;
+                case 20: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[1]} break;
+                case 30: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[2]} break;
+                case 40: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[3]} break;
+                case 50: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[4]} break; 
+                case 60: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[5]} break; 
+                case 70: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[6]} break; 
+                case 80: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[7]} break; 
+                case 90: {[tempo[0], tempo[1], gravity_y] = presets[document.getElementById('HZ-preset').innerHTML].phases[8]} break; 
+                case 100: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[9]} break; 
+                case 110: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[10]} break; 
+                case 120: {tempo = presets[document.getElementById('HZ-preset').innerHTML].phases[11]} break; 
+                case 130: {[tempo[0], tempo[1], gravity_y] = presets[document.getElementById('HZ-preset').innerHTML].phases[12]} break; 
+                case 140: {tempo = [tempo[0], tempo[1]] = presets[document.getElementById('HZ-preset').innerHTML].phases[13]} break; 
+                case 150: {tempo = [tempo[0], tempo[1]] = presets[document.getElementById('HZ-preset').innerHTML].phases[14]} break; 
+                case 160: {tempo = [tempo[0], tempo[1]] = presets[document.getElementById('HZ-preset').innerHTML].phases[15]} break; 
+                case 170: {tempo = [tempo[0], tempo[1]] = presets[document.getElementById('HZ-preset').innerHTML].phases[16]} break;
             }
             point.play()
             document.getElementById('counter').innerHTML = pointcount}
@@ -357,11 +407,7 @@ function animate(){
     if(!isgameover){
     setTimeout(() => {
         window.requestAnimationFrame(animate)
-    }, 20)}
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = 'rgb(139, 207, 234)'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }, refresh)}
 
     ctx.drawImage(Backimg, 0, 0, canvas.width, canvas.height)
     flappy.update()
@@ -375,19 +421,34 @@ function animate(){
     floorarray.forEach((elem) => {
         elem.update()
     })
-    console.log(floorarray.length)
 }
 
-FloorCreate(true)
-
-
+function execute(){
+isstarted = true
+document.getElementById('counter').style.opacity = '100%'
+document.getElementById('start-scr').style.opacity = '0%'
+setTimeout(() => {
+    document.getElementById('start-scr').style.display = 'none'
+}, 300)
 function interval() {
     setTimeout(() => {
         PipeCreate()
-        FloorCreate()
         interval();
     }, tempo[0]);
 };
 interval();
 
+}
+var countrefr = 0
+function floorinit() {
+    var refr
+    if(countrefr == 0) refr = 0
+    else refr = tempo[0]
+    setTimeout(() => {
+        countrefr++
+        FloorCreate()
+        floorinit();
+    }, refr);
+};
+floorinit();
 animate()
